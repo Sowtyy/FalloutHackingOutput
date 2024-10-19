@@ -1,4 +1,6 @@
-﻿internal class Input
+﻿using System;
+
+internal class Input
 {
     public static string AskInput(string? output = null)
     {
