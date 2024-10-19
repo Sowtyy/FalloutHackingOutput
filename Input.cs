@@ -14,4 +14,12 @@
                 return n;
         }
     }
+    public static uint AskInputUntilUint(string? output = null)
+    {
+        while (true)
+        {
+            if (uint.TryParse(AskInput(output), out uint n))
+                return n;
+        }
+    }
 }
