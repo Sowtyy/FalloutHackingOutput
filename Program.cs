@@ -94,7 +94,7 @@ internal class Program
         Console.WriteLine("\n" + _rowsText);
     }
 
-    static void Main(string[] args)
+    static void Main()
     {
         Program program = new Program();
 
