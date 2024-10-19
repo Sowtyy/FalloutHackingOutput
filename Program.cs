@@ -38,7 +38,7 @@ internal class Program
         }
     }
 
-    private void AddWordsToRows()
+    private void InsertWordsIntoRows()
     {
         for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
         {
@@ -62,12 +62,18 @@ internal class Program
     private void GenerateRows()
     {
         GenerateNoiseRows();
-        AddWordsToRows();
+        InsertWordsIntoRows();
     }
 
     private void RowsToText()
     {
         _rowsText = string.Join("\n", _rows);
+    }
+
+    private void ClearRows()
+    {
+        _rows.Clear();
+        _rowsText = "";
     }
 
     private void AskSettings()
@@ -81,9 +87,6 @@ internal class Program
     {
         if (toAskSettings)
             AskSettings();
-
-        _rows.Clear();
-        _rowsText = "";
 
         GenerateRows();
         RowsToText();
@@ -101,7 +104,10 @@ internal class Program
         while (true)
         {
             if (toStart)
+            {
+                program.ClearRows();
                 program.Start(toAskSettings);
+            }
             else
                 toStart = true;
 
