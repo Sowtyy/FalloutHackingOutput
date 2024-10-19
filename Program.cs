@@ -48,7 +48,7 @@ internal class Program
             string word = _keywords[Random.Shared.Next(_keywords.Count)];
             int characterIndex = Random.Shared.Next(newRow.Length);
 
-            if (newRow.Length > characterIndex + word.Length &&
+            if (newRow.Length >= word.Length + characterIndex &&
                 Random.Shared.Next((int)_keywordRate!) == 0)
             {
                 for (int i = characterIndex, j = 0; i < newRow.Length && j < word.Length; i++, j++)
