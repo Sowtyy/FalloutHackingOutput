@@ -126,6 +126,9 @@ internal class Program
                 continue;
             }
             toAskSettings = input == "c";
+
+            if (toAskSettings)
+                Console.WriteLine();
         }
     }
 }
