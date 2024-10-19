@@ -13,7 +13,7 @@ internal class Program
     private uint? _maxRows = null;
     private uint? _keywordRate = null;
 
-    private List<string> GenerateNoiseColumn()
+    private List<string> GenerateNoiseRows()
     {
         List<string> rows = [];
 
@@ -30,7 +30,7 @@ internal class Program
         return rows;
     }
 
-    private List<string> AddWordsToColumn(List<string> rows)
+    private List<string> AddWordsToRows(List<string> rows)
     {
         List<string> newRows = [];
 
@@ -54,18 +54,48 @@ internal class Program
         return newRows;
     }
 
-    private void Start()
+    private List<string> GenerateRows()
+    {
+        return AddWordsToRows(GenerateNoiseRows());
+    }
+
+    private static string RowsToText(List<string> rows)
+    {
+        return string.Join("\n", rows);
+    }
+
+    private void AskSettings()
     {
         _maxRow = Input.AskInputUntilUint("Enter amount of characters in a row: ");
         _maxRows = Input.AskInputUntilUint("Enter amount of rows: ");
         _keywordRate = Input.AskInputUntilUint("Enter keyword appearing chance (1 in X): ");
+    }
 
-        foreach (string row in AddWordsToColumn(GenerateNoiseColumn()))
-            Console.WriteLine(row);
+    private void Start(bool toAskSettings = true)
+    {
+        if (toAskSettings)
+            AskSettings();
+
+        Console.WriteLine("\n" + RowsToText(GenerateRows()));
     }
 
     static void Main(string[] args)
     {
-        new Program().Start();
+        Program program = new Program();
+        bool toAskSettings = true;
+
+        while (true)
+        {
+            program.Start(toAskSettings);
+
+            string input = Input.AskInput("\n" + """
+                                          [Enter] - Try again
+                                          [C]     - Try again with new settings
+                                          [Q]     - Quit
+                                          """ + " ").ToLower();
+            if (input == "q")
+                break;
+            toAskSettings = input == "c";
+        }
     }
 }
