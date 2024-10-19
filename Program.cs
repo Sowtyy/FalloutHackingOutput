@@ -46,7 +46,8 @@ internal class Program
             StringBuilder newRow = new StringBuilder(row);
 
             string word = _keywords[Random.Shared.Next(_keywords.Count)];
-            int characterIndex = Random.Shared.Next(newRow.Length);
+            int tempCharacterIndex = newRow.Length - word.Length;
+            int characterIndex = tempCharacterIndex < 0 ? 0 : Random.Shared.Next(tempCharacterIndex + 1);
 
             if (newRow.Length >= word.Length + characterIndex &&
                 Random.Shared.Next((int)_keywordRate!) == 0)
