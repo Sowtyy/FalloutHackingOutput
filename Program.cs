@@ -60,10 +60,22 @@ internal class Program
         }
     }
 
+    private void InsertIdentifiersIntoRows()
+    {
+        for (int rowIndex = 0, identifier = 0; rowIndex < _rows.Count; rowIndex++, identifier++)
+        {
+            string row = _rows[rowIndex];
+            string newRow = $"{identifier} {row}";
+
+            _rows[rowIndex] = newRow;
+        }
+    }
+
     private void GenerateRows()
     {
         GenerateNoiseRows();
         InsertWordsIntoRows();
+        InsertIdentifiersIntoRows();
     }
 
     private void RowsToText()
