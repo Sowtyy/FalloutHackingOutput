@@ -11,9 +11,12 @@ internal class Program
     private const string _noiseCharacters = "!@#$%^&*()_+-=[]{}/\\,.<>?|~`:;'\"";
     private readonly List<string> _keywords = ["test"];
 
-    private uint? _maxRow = null;
-    private uint? _maxRows = null;
-    private uint? _keywordRate = null;
+    private uint _maxRow = 0;
+    private uint _maxRows = 0;
+    private uint _keywordRate = 0;
+    private uint _minIdentifier = 0;
+    private uint _maxIdentifier = 0;
+    private uint _maxIdentifierStep = 0;
 
     private readonly List<string> _rows = [];
     private string _rowsText = "";
@@ -62,8 +65,14 @@ internal class Program
 
     private void InsertIdentifiersIntoRows()
     {
-        for (int rowIndex = 0, identifier = 0; rowIndex < _rows.Count; rowIndex++, identifier++)
+        long maxIdentifierStepTotal = _maxIdentifierStep * _rows.Count;
+        uint maxIdentifier = (uint)(_maxIdentifier - maxIdentifierStepTotal);
+        int identifier = Random.Shared.Next((int)_minIdentifier, (int)maxIdentifier);
+
+        for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
         {
+            identifier += Random.Shared.Next(1, (int)_maxIdentifierStep + 1);
+
             string row = _rows[rowIndex];
             string newRow = $"{identifier} {row}";
 
@@ -94,6 +103,9 @@ internal class Program
         _maxRow = Input.AskInputUntilUint("Enter amount of characters in a row: ");
         _maxRows = Input.AskInputUntilUint("Enter amount of rows: ");
         _keywordRate = Input.AskInputUntilUint("Enter keyword appearing chance (1 in X): ");
+        _minIdentifier = Input.AskInputUntilUint("Enter minimum identifier: ");
+        _maxIdentifier = Input.AskInputUntilUint("Enter maximum identifier: ");
+        _maxIdentifierStep = Input.AskInputUntilUint("Enter maximum identifier step: ");
     }
 
     private void Start(bool toAskSettings = true)
