@@ -17,6 +17,8 @@ internal class Program
     private uint _minIdentifier = 0;
     private uint _maxIdentifier = 0;
     private uint _maxIdentifierStep = 0;
+    private bool _showHexIdentifiers = true;
+    private string _identifierPrefix = "";
 
     private readonly List<string> _rows = [];
     private string _rowsText = "";
@@ -72,9 +74,10 @@ internal class Program
         for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
         {
             identifier += Random.Shared.Next(1, (int)_maxIdentifierStep + 1);
+            string identifierString = identifier.ToString(_showHexIdentifiers ? "X" : null);
 
             string row = _rows[rowIndex];
-            string newRow = $"{identifier} {row}";
+            string newRow = $"{_identifierPrefix}{identifierString} {row}";
 
             _rows[rowIndex] = newRow;
         }
@@ -106,6 +109,8 @@ internal class Program
         _minIdentifier = Input.AskInputUntilUint("Enter minimum identifier: ");
         _maxIdentifier = Input.AskInputUntilUint("Enter maximum identifier: ");
         _maxIdentifierStep = Input.AskInputUntilUint("Enter maximum identifier step: ");
+        _identifierPrefix = Input.AskInput("Enter identifier prefix: ");
+        _showHexIdentifiers = Input.AskInputUntilBool("Should identifiers be shown in hexadecimal format? ");
     }
 
     private void Start(bool toAskSettings = true)
