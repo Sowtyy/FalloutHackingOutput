@@ -103,14 +103,14 @@ internal class Program
 
     private void AskSettings()
     {
-        _maxRow = Input.AskInputUntilUint("Enter amount of characters in a row: ");
-        _maxRows = Input.AskInputUntilUint("Enter amount of rows: ");
-        _keywordRate = Input.AskInputUntilUint("Enter keyword appearing chance (1 in X): ");
-        _minIdentifier = Input.AskInputUntilUint("Enter minimum identifier: ");
-        _maxIdentifier = Input.AskInputUntilUint("Enter maximum identifier: ");
-        _maxIdentifierStep = Input.AskInputUntilUint("Enter maximum identifier step: ");
-        _identifierPrefix = Input.AskInput("Enter identifier prefix: ");
-        _showHexIdentifiers = Input.AskInputUntilBool("Should identifiers be shown in hexadecimal format? ");
+        _maxRow = Input.AskInputUntilUint($"Amount of characters in a row (now: {_maxRow}): ");
+        _maxRows = Input.AskInputUntilUint($"Amount of rows (now: {_maxRows}): ");
+        _keywordRate = Input.AskInputUntilUint($"Keyword appearing chance (1 in X) (now: {_keywordRate}): ");
+        _minIdentifier = Input.AskInputUntilUint($"Minimum identifier number (now: {_minIdentifier}): ");
+        _maxIdentifier = Input.AskInputUntilUint($"Maximum identifier number (now: {_maxIdentifier}): ");
+        _maxIdentifierStep = Input.AskInputUntilUint($"Maximum identifier step number (now: {_maxIdentifierStep}): ");
+        _identifierPrefix = Input.AskInput($"Identifier prefix (now: {_identifierPrefix}): ");
+        _showHexIdentifiers = Input.AskInputUntilEquals(["1", "2"], $"Show identifiers in hexadecimal or decimal format? (now: {(_showHexIdentifiers ? 1 : 2)}) [1/2]: ") == "1";
     }
 
     private void Start(bool toAskSettings = true)
