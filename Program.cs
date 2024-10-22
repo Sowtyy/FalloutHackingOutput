@@ -103,14 +103,17 @@ internal class Program
 
     private void AskSettings()
     {
-        _maxRow = Input.AskInputUntilUint($"Amount of characters in a row (now: {_maxRow}): ");
-        _maxRows = Input.AskInputUntilUint($"Amount of rows (now: {_maxRows}): ");
-        _keywordRate = Input.AskInputUntilUint($"Keyword appearing chance (1 in X) (now: {_keywordRate}): ");
-        _minIdentifier = Input.AskInputUntilUint($"Minimum identifier number (now: {_minIdentifier}): ");
-        _maxIdentifier = Input.AskInputUntilUint($"Maximum identifier number (now: {_maxIdentifier}): ");
-        _maxIdentifierStep = Input.AskInputUntilUint($"Maximum identifier step number (now: {_maxIdentifierStep}): ");
+        Console.WriteLine("[Enter] - Skip setting\n");
+        _maxRow = Input.AskInputUntilUintNullable($"Amount of characters in a row (now: {_maxRow}): ") ?? _maxRow;
+        _maxRows = Input.AskInputUntilUintNullable($"Amount of rows (now: {_maxRows}): ") ?? _maxRows;
+        _keywordRate = Input.AskInputUntilUintNullable($"Keyword appearing chance (1 in X) (now: {_keywordRate}): ") ?? _keywordRate;
+        _minIdentifier = Input.AskInputUntilUintNullable($"Minimum identifier number (now: {_minIdentifier}): ") ?? _minIdentifier;
+        _maxIdentifier = Input.AskInputUntilUintNullable($"Maximum identifier number (now: {_maxIdentifier}): ") ?? _maxIdentifier;
+        _maxIdentifierStep = Input.AskInputUntilUintNullable($"Maximum identifier step number (now: {_maxIdentifierStep}): ") ?? _maxIdentifierStep;
         _identifierPrefix = Input.AskInput($"Identifier prefix (now: {_identifierPrefix}): ");
-        _showHexIdentifiers = Input.AskInputUntilEquals(["1", "2"], $"Show identifiers in hexadecimal or decimal format? (now: {(_showHexIdentifiers ? 1 : 2)}) [1/2]: ") == "1";
+        string? showHexIdentifiersInput = Input.AskInputUntilEqualsNullable(["1", "2"], $"Show identifiers in hexadecimal or decimal format? (now: {(_showHexIdentifiers ? 1 : 2)}) [1/2]: ");
+        if (showHexIdentifiersInput != null)
+            _showHexIdentifiers = showHexIdentifiersInput == "1";
     }
 
     private void Start(bool toAskSettings = true)
