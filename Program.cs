@@ -199,6 +199,8 @@ internal class Program
 
     static void Main()
     {
+        Console.Title = $"{AppInfo.NameAndVersion}   by {AppInfo.Author}";
+
         Program program = new Program();
 
         bool toAskSettings = false;
