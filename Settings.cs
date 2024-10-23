@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Nodes;
 
+namespace FalloutHackingOutput;
+
 internal class Settings
 {
     public uint MaxRow = 0;
