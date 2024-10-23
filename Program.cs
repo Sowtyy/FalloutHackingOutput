@@ -3,27 +3,85 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace FalloutHackingOutput;
 
 internal class Program
 {
-    private const string _noiseCharacters = "!@#$%^&*()_+-=[]{}/\\,.<>?|~`:;'\"";
-    private readonly List<string> _keywords = ["test"];
+    private const string _noiseCharactersFilePath = "noise-characters.txt";
+    private const string _keywordsFilePath = "keywords.txt";
+    private const string _settingsFilePath = "settings.json";
 
-    private uint _maxRow = 0;
-    private uint _maxRows = 0;
-    private uint _keywordRate = 0;
-    private uint _minIdentifier = 0;
-    private uint _maxIdentifier = 0;
-    private uint _maxIdentifierStep = 0;
-    private bool _showHexIdentifiers = true;
-    private string _identifierPrefix = "";
+    private const string _defaultNoiseCharacters = "!@#$%^&*()_+-=[]{}/\\,.<>?|~`:;'\"";
+    private string[] _keywords = ["test", "testtwo"];
+    private string _noiseCharacters = _defaultNoiseCharacters;
+
+    private readonly Settings _settings = new Settings();
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
+    {
+        WriteIndented = true,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     private readonly List<string> _rows = [];
     private string _rowsText = "";
 
-    private void SaveToFile()
+    private bool LoadAllSettings()
+    {
+        bool askSettings = false;
+
+        if (!File.Exists(_noiseCharactersFilePath))
+        {
+            File.WriteAllText(_noiseCharactersFilePath, _defaultNoiseCharacters);
+            _noiseCharacters = _defaultNoiseCharacters;
+            Console.WriteLine($"Created '{_noiseCharactersFilePath}' file, edit it to change noise characters.");
+        }
+        else
+        {
+            _noiseCharacters = File.ReadAllText(_noiseCharactersFilePath);
+        }
+
+        if (!File.Exists(_keywordsFilePath))
+        {
+            File.WriteAllText(_keywordsFilePath, string.Join(Environment.NewLine, _keywords));
+            Console.WriteLine($"Created '{_keywordsFilePath}' file, edit it to change keywords. Write each keyword on the new line.");
+        }
+        else
+        {
+            string keywordsText = File.ReadAllText(_keywordsFilePath);
+            _keywords = keywordsText.Split(Environment.NewLine);
+        }
+
+        if (!File.Exists(_settingsFilePath))
+        {
+            SaveSettings();
+            Console.WriteLine($"Created '{_settingsFilePath}' file, it contains other settings.");
+            askSettings = true;
+        }
+        else
+        {
+            try
+            {
+                _settings.FromJson(File.ReadAllText(_settingsFilePath));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Couldn't load settings from '{_settingsFilePath}': {ex.Message}.\nResetting settings file.");
+                SaveSettings();
+                askSettings = true;
+            }
+        }
+
+        return askSettings;
+    }
+
+    private void SaveSettings()
+    {
+        File.WriteAllText(_settingsFilePath, _settings.ToJson().ToJsonString(_jsonSerializerOptions));
+    }
+
+    private void SaveOutputToFile()
     {
         string path = Process.GetCurrentProcess().ProcessName + "-output.txt";
         File.WriteAllText(path, _rowsText);
@@ -32,11 +90,11 @@ internal class Program
 
     private void GenerateNoiseRows()
     {
-        for (int i = 0; i < _maxRows; i++)
+        for (int i = 0; i < _settings.MaxRows; i++)
         {
             string row = "";
 
-            for (int j = 0; j < _maxRow; j++)
+            for (int j = 0; j < _settings.MaxRow; j++)
                 row += _noiseCharacters[Random.Shared.Next(_noiseCharacters.Length)];
 
             _rows.Add(row);
@@ -50,12 +108,12 @@ internal class Program
             string row = _rows[rowIndex];
             StringBuilder newRow = new StringBuilder(row);
 
-            string word = _keywords[Random.Shared.Next(_keywords.Count)];
+            string word = _keywords[Random.Shared.Next(_keywords.Length)];
             int tempCharacterIndex = newRow.Length - word.Length;
             int characterIndex = tempCharacterIndex < 0 ? 0 : Random.Shared.Next(tempCharacterIndex + 1);
 
             if (newRow.Length >= word.Length + characterIndex &&
-                Random.Shared.Next((int)_keywordRate!) == 0)
+                Random.Shared.Next((int)_settings.KeywordRate!) == 0)
             {
                 for (int i = characterIndex, j = 0; i < newRow.Length && j < word.Length; i++, j++)
                     newRow[i] = word[j];
@@ -67,17 +125,17 @@ internal class Program
 
     private void InsertIdentifiersIntoRows()
     {
-        long maxIdentifierStepTotal = _maxIdentifierStep * _rows.Count;
-        uint maxIdentifier = (uint)(_maxIdentifier - maxIdentifierStepTotal);
-        int identifier = Random.Shared.Next((int)_minIdentifier, (int)maxIdentifier);
+        long maxIdentifierStepTotal = _settings.MaxIdentifierStep * _rows.Count;
+        uint maxIdentifier = (uint)(_settings.MaxIdentifier - maxIdentifierStepTotal);
+        int identifier = Random.Shared.Next((int)_settings.MinIdentifier, (int)maxIdentifier);
 
         for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
         {
-            identifier += Random.Shared.Next(1, (int)_maxIdentifierStep + 1);
-            string identifierString = identifier.ToString(_showHexIdentifiers ? "X" : null);
+            identifier += Random.Shared.Next(1, (int)_settings.MaxIdentifierStep + 1);
+            string identifierString = identifier.ToString(_settings.ShowHexIdentifiers ? "X" : null);
 
             string row = _rows[rowIndex];
-            string newRow = $"{_identifierPrefix}{identifierString} {row}";
+            string newRow = $"{_settings.IdentifierPrefix}{identifierString} {row}";
 
             _rows[rowIndex] = newRow;
         }
@@ -103,26 +161,37 @@ internal class Program
 
     private void AskSettings()
     {
-        Console.WriteLine("[Enter] - Skip setting\n");
-        _maxRow = Input.AskInputUntilUintNullable($"Amount of characters in a row (now: {_maxRow}): ") ?? _maxRow;
-        _maxRows = Input.AskInputUntilUintNullable($"Amount of rows (now: {_maxRows}): ") ?? _maxRows;
-        _keywordRate = Input.AskInputUntilUintNullable($"Keyword appearing chance (1 in X) (now: {_keywordRate}): ") ?? _keywordRate;
+        Console.WriteLine("\n[Enter] - Skip setting\n");
+        _settings.MaxRow = Input.AskInputUntilUintNullable($"Amount of characters in a row (now: {_settings.MaxRow}): ") ?? _settings.MaxRow;
+        _settings.MaxRows = Input.AskInputUntilUintNullable($"Amount of rows (now: {_settings.MaxRows}): ") ?? _settings.MaxRows;
+        _settings.KeywordRate = Input.AskInputUntilUintNullable($"Keyword appearing chance (1 in X) (now: {_settings.KeywordRate}): ") ?? _settings.KeywordRate;
         Console.WriteLine("Identifiers are numbers on the left.");
-        _minIdentifier = Input.AskInputUntilUintNullable($"Minimum identifier number (now: {_minIdentifier}): ") ?? _minIdentifier;
-        _maxIdentifier = Input.AskInputUntilUintNullable($"Maximum identifier number (now: {_maxIdentifier}): ") ?? _maxIdentifier;
-        _maxIdentifierStep = Input.AskInputUntilUintNullable($"Maximum identifier step number (now: {_maxIdentifierStep}): ") ?? _maxIdentifierStep;
-        _identifierPrefix = Input.AskInput($"Identifier prefix (now: {_identifierPrefix}): ");
-        string? showHexIdentifiersInput = Input.AskInputUntilEqualsNullable(["1", "2"], $"Show identifiers in hexadecimal or decimal format? (now: {(_showHexIdentifiers ? 1 : 2)}) [1/2]: ");
+        _settings.MinIdentifier = Input.AskInputUntilUintNullable($"Minimum identifier number (now: {_settings.MinIdentifier}): ") ?? _settings.MinIdentifier;
+        _settings.MaxIdentifier = Input.AskInputUntilUintNullable($"Maximum identifier number (now: {_settings.MaxIdentifier}): ") ?? _settings.MaxIdentifier;
+        _settings.MaxIdentifierStep = Input.AskInputUntilUintNullable($"Maximum identifier step number (now: {_settings.MaxIdentifierStep}): ") ?? _settings.MaxIdentifierStep;
+        _settings.IdentifierPrefix = Input.AskInput($"Identifier prefix (now: {_settings.IdentifierPrefix}): ");
+        string? showHexIdentifiersInput = Input.AskInputUntilEqualsNullable(["1", "2"], $"Show identifiers in hexadecimal or decimal format? (now: {(_settings.ShowHexIdentifiers ? 1 : 2)}) [1/2]: ");
         if (showHexIdentifiersInput != null)
-            _showHexIdentifiers = showHexIdentifiersInput == "1";
+            _settings.ShowHexIdentifiers = showHexIdentifiersInput == "1";
     }
 
-    private void Start(bool toAskSettings = true)
+    private void Start(bool toAskSettings)
     {
-        if (toAskSettings)
+        if (LoadAllSettings() || toAskSettings)
+        {
             AskSettings();
+            SaveSettings();
+        }
 
-        GenerateRows();
+        try
+        {
+            GenerateRows();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while generating rows: {ex.Message}.");
+        }
+
         RowsToText();
 
         Console.WriteLine("\n" + _rowsText);
@@ -132,7 +201,7 @@ internal class Program
     {
         Program program = new Program();
 
-        bool toAskSettings = true;
+        bool toAskSettings = false;
         bool toStart = true;
 
         while (true)
@@ -156,13 +225,10 @@ internal class Program
             if (input == "s")
             {
                 toStart = false;
-                program.SaveToFile();
+                program.SaveOutputToFile();
                 continue;
             }
             toAskSettings = input == "c";
-
-            if (toAskSettings)
-                Console.WriteLine();
         }
     }
 }
