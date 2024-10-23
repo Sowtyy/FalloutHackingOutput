@@ -35,7 +35,7 @@ internal class Program
         {
             File.WriteAllText(_noiseCharactersFilePath, _defaultNoiseCharacters);
             _noiseCharacters = _defaultNoiseCharacters;
-            Console.WriteLine($"Created '{_noiseCharactersFilePath}' file, edit it to change noise characters.");
+            Console.WriteLine($"Created file '{_noiseCharactersFilePath}'. Edit it to change noise characters.");
         }
         else
         {
@@ -45,7 +45,7 @@ internal class Program
         if (!File.Exists(_keywordsFilePath))
         {
             File.WriteAllText(_keywordsFilePath, string.Join(Environment.NewLine, _keywords));
-            Console.WriteLine($"Created '{_keywordsFilePath}' file, edit it to change keywords. Write each keyword on the new line.");
+            Console.WriteLine($"Created file '{_keywordsFilePath}'. Edit it to change keywords. Write each keyword on a new line.");
         }
         else
         {
@@ -56,7 +56,7 @@ internal class Program
         if (!File.Exists(_settingsFilePath))
         {
             SaveSettings();
-            Console.WriteLine($"Created '{_settingsFilePath}' file, it contains other settings.");
+            Console.WriteLine($"Created file '{_settingsFilePath}'. It contains other settings.");
             askSettings = true;
         }
         else
