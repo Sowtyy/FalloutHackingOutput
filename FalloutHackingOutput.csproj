@@ -8,6 +8,7 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Authors>Sowtyy</Authors>
+    <Copyright>$(Authors)</Copyright>
   </PropertyGroup>
 
 </Project>
