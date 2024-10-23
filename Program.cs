@@ -107,6 +107,7 @@ internal class Program
         _maxRow = Input.AskInputUntilUintNullable($"Amount of characters in a row (now: {_maxRow}): ") ?? _maxRow;
         _maxRows = Input.AskInputUntilUintNullable($"Amount of rows (now: {_maxRows}): ") ?? _maxRows;
         _keywordRate = Input.AskInputUntilUintNullable($"Keyword appearing chance (1 in X) (now: {_keywordRate}): ") ?? _keywordRate;
+        Console.WriteLine("Identifiers are numbers on the left.");
         _minIdentifier = Input.AskInputUntilUintNullable($"Minimum identifier number (now: {_minIdentifier}): ") ?? _minIdentifier;
         _maxIdentifier = Input.AskInputUntilUintNullable($"Maximum identifier number (now: {_maxIdentifier}): ") ?? _maxIdentifier;
         _maxIdentifierStep = Input.AskInputUntilUintNullable($"Maximum identifier step number (now: {_maxIdentifierStep}): ") ?? _maxIdentifierStep;
